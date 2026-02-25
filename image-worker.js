@@ -3,15 +3,6 @@
  * 使用 OffscreenCanvas 在后台线程执行，不阻塞主线程；主线程可并发调度多 worker 提高吞吐。
  */
 
-function dataURLToBlob(dataURL) {
-    const [header, base64] = dataURL.split(',');
-    const binary = atob(base64);
-    const bytes = new Uint8Array(binary.length);
-    for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
-    const mime = (header.match(/data:([^;]+);/) || [])[1] || 'image/jpeg';
-    return new Blob([bytes], { type: mime });
-}
-
 async function processPatinaInWorker(imageBuffer, settings) {
     const { iterations, quality, greenLevel, blurAmount, scaleFactor } = settings;
     const MAX_DIM = 1000;
@@ -37,11 +28,12 @@ async function processPatinaInWorker(imageBuffer, settings) {
     bitmap.close();
 
     const loopCount = Math.ceil(iterations / 2);
-    let currentDataUrl = canvas.toDataURL('image/jpeg', 1.0);
+
+    // OffscreenCanvas 不支持 toDataURL，使用 convertToBlob + createImageBitmap 迭代
+    let currentBlob = await canvas.convertToBlob({ type: 'image/jpeg', quality: 1.0 });
 
     for (let i = 0; i < loopCount; i++) {
-        const frameBlob = dataURLToBlob(currentDataUrl);
-        const tmpBitmap = await createImageBitmap(frameBlob);
+        const tmpBitmap = await createImageBitmap(currentBlob);
 
         const s = scaleFactor - (Math.random() * 0.02);
         const sw = w * s;
@@ -66,12 +58,11 @@ async function processPatinaInWorker(imageBuffer, settings) {
         }
 
         const q = Math.max(0.01, quality * (0.9 + Math.random() * 0.2));
-        currentDataUrl = canvas.toDataURL('image/jpeg', q);
+        currentBlob = await canvas.convertToBlob({ type: 'image/jpeg', quality: q });
     }
 
     // 最后一帧：对比度/亮度后输出 Blob
-    const finalBlob = dataURLToBlob(currentDataUrl);
-    const finalBitmap = await createImageBitmap(finalBlob);
+    const finalBitmap = await createImageBitmap(currentBlob);
     ctx.filter = 'contrast(1.1) brightness(0.95)';
     ctx.drawImage(finalBitmap, 0, 0, w, h);
     ctx.filter = 'none';
