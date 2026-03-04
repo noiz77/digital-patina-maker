@@ -1,26 +1,33 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>电子包浆生成器 | Digital Patina Maker</title>
-    <meta name="description" content="一键生成互联网电子包浆效果，模拟多次压缩转发的岁月痕迹。">
-    <link rel="stylesheet" href="style.css?v=5">
+    <title>Digital Patina Maker</title>
+    <meta name="description"
+        content="Generate digital patina effects in one click — simulate the worn-out look of repeatedly compressed & forwarded images.">
+    <link rel="stylesheet" href="style.css?v=6">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap"
         rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
 </head>
 
 <body>
+    <!-- Stars background layers -->
+    <div id="stars"></div>
+    <div id="stars2"></div>
+    <div id="stars3"></div>
+
     <div class="app-container">
 
         <header>
-            <h1 class="page-title" id="main-title" data-text="电子包浆表情包">电子包浆表情包</h1>
-            <p class="subtitle">批量处理 · 预设像素做旧</p>
+            <h1 class="page-title" id="main-title"></h1>
+            <p class="subtitle">Batch Processing · Pixel Aging Presets</p>
         </header>
 
         <main>
@@ -32,17 +39,16 @@
                         <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path
                                 d="M22 32V15.7L16.8 20.9L14 18L24 8L34 18L31.2 20.9L26 15.7V32H22ZM12 40C10.9 40 9.95833 39.6083 9.175 38.825C8.39167 38.0417 8 37.1 8 36V30H12V36H36V30H40V36C40 37.1 39.6083 38.0417 38.825 38.825C38.0417 39.6083 37.1 40 36 40H12Z"
-                                fill="black" />
+                                fill="#EDEDED" />
                         </svg>
                     </div>
-                    <span class="upload-label">点击或上传图片</span>
-                    <span class="file-hint">单张限制5MB，支持 JPG，PNG，WEBP</span>
+                    <span class="upload-label">Click or Drop Images</span>
+                    <span class="file-hint">Max 5MB per file · JPG, PNG, WEBP</span>
                 </div>
             </div>
 
             <!-- Workspace Section -->
             <div class="workspace hidden" id="workspace">
-                <!-- Control Panel -->
                 <div class="controls-panel">
                     <div class="panel-inner">
                         <h3 class="panel-heading">
@@ -50,23 +56,20 @@
                                 xmlns="http://www.w3.org/2000/svg">
                                 <path
                                     d="M14.125 14.125C14.7083 13.5417 15 12.8333 15 12C15 11.1667 14.7083 10.4583 14.125 9.875C13.5417 9.29167 12.8333 9 12 9C11.1667 9 10.4583 9.29167 9.875 9.875C9.29167 10.4583 9 11.1667 9 12C9 12.8333 9.29167 13.5417 9.875 14.125C10.4583 14.7083 11.1667 15 12 15C12.8333 15 13.5417 14.7083 14.125 14.125ZM8.4625 15.5375C7.4875 14.5625 7 13.3833 7 12C7 10.6167 7.4875 9.4375 8.4625 8.4625C9.4375 7.4875 10.6167 7 12 7C13.3833 7 14.5625 7.4875 15.5375 8.4625C16.5125 9.4375 17 10.6167 17 12C17 13.3833 16.5125 14.5625 15.5375 15.5375C14.5625 16.5125 13.3833 17 12 17C10.6167 17 9.4375 16.5125 8.4625 15.5375ZM5 13H1V11H5V13ZM23 13H19V11H23V13ZM11 5V1H13V5H11ZM11 23V19H13V23H11ZM6.4 7.75L3.875 5.325L5.3 3.85L7.7 6.35L6.4 7.75ZM18.7 20.15L16.275 17.625L17.6 16.25L20.125 18.675L18.7 20.15ZM16.25 6.4L18.675 3.875L20.15 5.3L17.65 7.7L16.25 6.4ZM3.85 18.7L6.375 16.275L7.75 17.6L5.325 20.125L3.85 18.7Z"
-                                    fill="#1F1F1F" />
+                                    fill="#EDEDED" />
                             </svg>
-                            选择样式
+                            Select Style
                         </h3>
 
                         <div class="preset-group">
                             <button class="preset-card" data-preset="mild">
-                                <span class="preset-title">09年老图</span>
-                                <span class="preset-desc">轻度失真 · 泛黄</span>
+                                <span class="preset-title">2009 Relic</span>
                             </button>
                             <button class="preset-card active" data-preset="medium">
-                                <span class="preset-title">贴吧神图</span>
-                                <span class="preset-desc">压缩感 · 电子绿</span>
+                                <span class="preset-title">Forum God</span>
                             </button>
                             <button class="preset-card" data-preset="heavy">
-                                <span class="preset-title">电子废土</span>
-                                <span class="preset-desc">极度崩坏 · 像素</span>
+                                <span class="preset-title">Cyber Wasteland</span>
                             </button>
                         </div>
 
@@ -80,7 +83,7 @@
                                         d="M14 8C13.7167 8 13.4792 7.90417 13.2875 7.7125C13.0958 7.52083 13 7.28333 13 7C13 6.71667 13.0958 6.47917 13.2875 6.2875C13.4792 6.09583 13.7167 6 14 6C14.2833 6 14.5208 6.09583 14.7125 6.2875C14.9042 6.47917 15 6.71667 15 7C15 7.28333 14.9042 7.52083 14.7125 7.7125C14.5208 7.90417 14.2833 8 14 8ZM20 8C19.7167 8 19.4792 7.90417 19.2875 7.7125C19.0958 7.52083 19 7.28333 19 7C19 6.71667 19.0958 6.47917 19.2875 6.2875C19.4792 6.09583 19.7167 6 20 6C20.2833 6 20.5208 6.09583 20.7125 6.2875C20.9042 6.47917 21 6.71667 21 7C21 7.28333 20.9042 7.52083 20.7125 7.7125C20.5208 7.90417 20.2833 8 20 8ZM17 6C16.7167 6 16.4792 5.90417 16.2875 5.7125C16.0958 5.52083 16 5.28333 16 5C16 4.71667 16.0958 4.47917 16.2875 4.2875C16.4792 4.09583 16.7167 4 17 4C17.2833 4 17.5208 4.09583 17.7125 4.2875C17.9042 4.47917 18 4.71667 18 5C18 5.28333 17.9042 5.52083 17.7125 5.7125C17.5208 5.90417 17.2833 6 17 6ZM20 4C19.7167 4 19.4792 3.90417 19.2875 3.7125C19.0958 3.52083 19 3.28333 19 3C19 2.71667 19.0958 2.47917 19.2875 2.2875C19.4792 2.09583 19.7167 2 20 2C20.2833 2 20.5208 2.09583 20.7125 2.2875C20.9042 2.47917 21 2.71667 21 3C21 3.28333 20.9042 3.52083 20.7125 3.7125C20.5208 3.90417 20.2833 4 20 4ZM17 10C16.7167 10 16.4792 9.90417 16.2875 9.7125C16.0958 9.52083 16 9.28333 16 9C16 8.71667 16.0958 8.47917 16.2875 8.2875C16.4792 8.09583 16.7167 8 17 8C17.2833 8 17.5208 8.09583 17.7125 8.2875C17.9042 8.47917 18 8.71667 18 9C18 9.28333 17.9042 9.52083 17.7125 9.7125C17.5208 9.90417 17.2833 10 17 10ZM20 12C19.7167 12 19.4792 11.9042 19.2875 11.7125C19.0958 11.5208 19 11.2833 19 11C19 10.7167 19.0958 10.4792 19.2875 10.2875C19.4792 10.0958 19.7167 10 20 10C20.2833 10 20.5208 10.0958 20.7125 10.2875C20.9042 10.4792 21 10.7167 21 11C21 11.2833 20.9042 11.5208 20.7125 11.7125C20.5208 11.9042 20.2833 12 20 12ZM5 19H11V11H5V19ZM3 21V11C3 10.45 3.19583 9.97917 3.5875 9.5875C3.97917 9.19583 4.45 9 5 9H11C11.55 9 12.0208 9.19583 12.4125 9.5875C12.8042 9.97917 13 10.45 13 11V21H3ZM5 9V5C5 4.45 5.19583 3.97917 5.5875 3.5875C5.97917 3.19583 6.45 3 7 3H11V9H9V5H7V9H5Z"
                                         fill="white" />
                                 </svg>
-                                <span class="btn-text">注入包浆</span>
+                                <span class="btn-text">Apply Patina</span>
                                 <div class="loading-spinner hidden"></div>
                             </button>
 
@@ -90,31 +93,30 @@
                                         xmlns="http://www.w3.org/2000/svg" class="btn-icon">
                                         <path
                                             d="M8.4875 21.2875C7.39583 20.8125 6.44583 20.1708 5.6375 19.3625C4.82917 18.5542 4.1875 17.6042 3.7125 16.5125C3.2375 15.4208 3 14.25 3 13H5C5 14.95 5.67917 16.6042 7.0375 17.9625C8.39583 19.3208 10.05 20 12 20C13.95 20 15.6042 19.3208 16.9625 17.9625C18.3208 16.6042 19 14.95 19 13C19 11.05 18.3208 9.39583 16.9625 8.0375C15.6042 6.67917 13.95 6 12 6H11.85L13.4 7.55L12 9L8 5L12 1L13.4 2.45L11.85 4H12C13.25 4 14.4208 4.2375 15.5125 4.7125C16.6042 5.1875 17.5542 5.82917 18.3625 6.6375C19.1708 7.44583 19.8125 8.39583 20.2875 9.4875C20.7625 10.5792 21 11.75 21 13C21 14.25 20.7625 15.4208 20.2875 16.5125C19.8125 17.6042 19.1708 18.5542 18.3625 19.3625C17.5542 20.1708 16.6042 20.8125 15.5125 21.2875C14.4208 21.7625 13.25 22 12 22C10.75 22 9.57917 21.7625 8.4875 21.2875Z"
-                                            fill="#1F1F1F" />
+                                            fill="#EDEDED" />
                                     </svg>
-                                    重置
+                                    Reset
                                 </button>
                                 <button type="button" id="download-sticker-btn" class="btn secondary disabled">
                                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
                                         xmlns="http://www.w3.org/2000/svg" class="btn-icon">
                                         <path
                                             d="M12 16L7 11L8.4 9.55L11 12.15V4H13V12.15L15.6 9.55L17 11L12 16ZM6 20C5.45 20 4.97917 19.8042 4.5875 19.4125C4.19583 19.0208 4 18.55 4 18V15H6V18H18V15H20V18C20 18.55 19.8042 19.0208 19.4125 19.4125C19.0208 19.8042 18.55 20 18 20H6Z"
-                                            fill="black" />
+                                            fill="#EDEDED" />
                                     </svg>
-                                    下载表情包
+                                    Download
                                 </button>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Right Results Panel -->
                 <div class="results-panel">
                     <div id="results-grid" class="results-grid">
-                        <button type="button" id="add-more-cell" class="add-more-cell" aria-label="继续上传">
+                        <button type="button" id="add-more-cell" class="add-more-cell" aria-label="Add more images">
                             <svg width="48" height="48" viewBox="0 0 48 48" fill="none"
                                 xmlns="http://www.w3.org/2000/svg">
-                                <path d="M22 26H10V22H22V10H26V22H38V26H26V38H22V26Z" fill="black" />
+                                <path d="M22 26H10V22H22V10H26V22H38V26H26V38H22V26Z" fill="#EDEDED" />
                             </svg>
                         </button>
                     </div>
@@ -130,6 +132,81 @@
         <span class="lightbox-close">&times;</span>
         <img class="lightbox-content" id="lightbox-img">
     </div>
+
+    <script>
+        (function () {
+            function makeStars(n) {
+                let v = `${Math.floor(Math.random() * 2000)}px ${Math.floor(Math.random() * 2000)}px #FFF`;
+                for (let i = 1; i < n; i++) {
+                    v += `,${Math.floor(Math.random() * 2000)}px ${Math.floor(Math.random() * 2000)}px #FFF`;
+                }
+                return v;
+            }
+            const s1 = makeStars(700);
+            const s2 = makeStars(200);
+            const s3 = makeStars(100);
+            const st = document.createElement('style');
+            st.textContent = `
+                #stars  { width:1px; height:1px; box-shadow:${s1}; animation:animStar 60s linear infinite; }
+                #stars::after  { content:''; position:absolute; top:2000px; left:0; width:1px; height:1px; box-shadow:${s1}; }
+                #stars2 { width:2px; height:2px; box-shadow:${s2}; animation:animStar 120s linear infinite; }
+                #stars2::after { content:''; position:absolute; top:2000px; left:0; width:2px; height:2px; box-shadow:${s2}; }
+                #stars3 { width:3px; height:3px; box-shadow:${s3}; animation:animStar 200s linear infinite; }
+                #stars3::after { content:''; position:absolute; top:2000px; left:0; width:3px; height:3px; box-shadow:${s3}; }
+            `;
+            document.head.appendChild(st);
+        })();
+    </script>
+
+    <script>
+        // GSAP Decoder Animation for the title
+        document.addEventListener('DOMContentLoaded', () => {
+            const textElement = document.getElementById('main-title');
+            const originalText = "Digital Patina";
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*()_-+=[]{}|;:,.<>?';
+
+            originalText.split('').forEach(char => {
+                const span = document.createElement('span');
+                span.innerHTML = char === ' ' ? '&nbsp;' : char;
+                textElement.appendChild(span);
+            });
+
+            const letters = Array.from(textElement.children);
+
+            function createDecoderAnimation() {
+                const tl = gsap.timeline({
+                    onComplete: () => {
+                        gsap.delayedCall(2, () => tl.restart());
+                    }
+                });
+
+                letters.forEach((letter, i) => {
+                    const originalChar = letter.innerHTML;
+                    if (originalChar === '&nbsp;') return;
+
+                    let proxy = { charIndex: 0 };
+
+                    tl.to(proxy, {
+                        charIndex: chars.length - 1,
+                        duration: 1.5,
+                        ease: "power2.inOut",
+                        onUpdate: () => {
+                            const randomIndex = Math.floor(Math.random() * chars.length);
+                            letter.textContent = chars[randomIndex];
+                        },
+                        onComplete: () => {
+                            letter.innerHTML = originalChar;
+                        }
+                    }, i * 0.08);
+                });
+
+                tl.to({}, { duration: 2 });
+            }
+
+            createDecoderAnimation();
+        });
+    </script>
+
     <script src="script.js"></script>
 </body>
 

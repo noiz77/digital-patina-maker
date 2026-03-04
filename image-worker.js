@@ -1,7 +1,4 @@
-/**
- * 图片包浆处理 Web Worker
- * 使用 OffscreenCanvas 在后台线程执行，不阻塞主线程；主线程可并发调度多 worker 提高吞吐。
- */
+
 
 async function processPatinaInWorker(imageBuffer, settings) {
     const { iterations, quality, greenLevel, blurAmount, scaleFactor } = settings;
@@ -29,7 +26,7 @@ async function processPatinaInWorker(imageBuffer, settings) {
 
     const loopCount = Math.ceil(iterations / 2);
 
-    // OffscreenCanvas 不支持 toDataURL，使用 convertToBlob + createImageBitmap 迭代
+    // OffscreenCanvas does not support toDataURL; iterate via convertToBlob + createImageBitmap
     let currentBlob = await canvas.convertToBlob({ type: 'image/jpeg', quality: 1.0 });
 
     for (let i = 0; i < loopCount; i++) {
@@ -61,7 +58,7 @@ async function processPatinaInWorker(imageBuffer, settings) {
         currentBlob = await canvas.convertToBlob({ type: 'image/jpeg', quality: q });
     }
 
-    // 最后一帧：对比度/亮度后输出 Blob
+    // Final pass: apply contrast/brightness and output blob
     const finalBitmap = await createImageBitmap(currentBlob);
     ctx.filter = 'contrast(1.1) brightness(0.95)';
     ctx.drawImage(finalBitmap, 0, 0, w, h);

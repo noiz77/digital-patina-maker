@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
         updateTransform();
     };
 
-    // Preset Buttons（与 HTML 默认选中态同步）
+    // Preset buttons
     const presetBtns = document.querySelectorAll('.preset-card');
     const activePresetEl = document.querySelector('.preset-card.active');
 
@@ -73,7 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentPreset = (activePresetEl && activePresetEl.dataset.preset) || 'medium';
     let isProcessing = false;
 
-    // Web Worker 池：并发处理图片，不阻塞主线程
+    // Worker pool
     const WORKER_POOL_SIZE = Math.min(navigator.hardwareConcurrency || 2, 4);
     let workerPool = [];
 
@@ -100,7 +100,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
-    // Lightbox（点击图片打开，点击删除/继续上传不打开）
+    // Lightbox: click image to open; skip delete / add-more clicks
     resultsGrid.addEventListener('click', (e) => {
         if (e.target.closest('.result-item-delete') || e.target.closest('.add-more-cell')) return;
         if (e.target.tagName === 'IMG') {
@@ -220,7 +220,6 @@ document.addEventListener('DOMContentLoaded', () => {
         e.target.value = '';
     });
 
-    // 继续上传：网格内虚线格点击
     if (addMoreCell) addMoreCell.addEventListener('click', () => fileInput.click());
 
     presetBtns.forEach(btn => {
@@ -243,7 +242,7 @@ document.addEventListener('DOMContentLoaded', () => {
         workspace.classList.add('hidden');
         uploadZone.style.display = '';
         fileInput.value = '';
-        if (mainTitle) { mainTitle.textContent = '电子包浆生成器'; mainTitle.dataset.text = '电子包浆生成器'; }
+        // Title is managed by GSAP animation — no change needed
         if (addMoreCell) resultsGrid.appendChild(addMoreCell);
         downloadStickerBtn.classList.add('disabled');
         document.querySelector('.app-container').classList.remove('workspace-active');
@@ -259,7 +258,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const link = document.createElement('a');
 
-        // 单张图片：直接下载图片文件
+        // Single file: download directly
         if (fileQueue.length === 1) {
             let blob = fileQueue[0].processedBlob;
             if (isSticker) blob = await resizeImageBlob(blob, 150);
@@ -269,7 +268,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // 多张图片：打包 ZIP 下载
+        // Multiple files: pack as ZIP
         const zip = new JSZip();
         for (let i = 0; i < fileQueue.length; i++) {
             const item = fileQueue[i];
@@ -349,13 +348,13 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         if (validFiles.length === 0) {
-            alert('请上传小于5MB的图片文件。');
+            alert('Please upload image files under 5MB.');
             return;
         }
 
         const wasEmpty = fileQueue.length === 0;
 
-        // 预压缩后加入队列
+
         for (const file of validFiles) {
             const compressed = await compressIfNeeded(file);
             const id = Math.random().toString(36).substr(2, 9);
@@ -370,7 +369,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (wasEmpty) {
             uploadZone.style.display = 'none';
             workspace.classList.remove('hidden');
-            if (mainTitle) { mainTitle.textContent = '电子包浆表情包'; mainTitle.dataset.text = '电子包浆表情包'; }
+
             document.querySelector('.app-container').classList.add('workspace-active');
         }
     }
@@ -384,7 +383,7 @@ document.addEventListener('DOMContentLoaded', () => {
             workspace.classList.add('hidden');
             uploadZone.style.display = '';
             fileInput.value = '';
-            if (mainTitle) { mainTitle.textContent = '电子包浆生成器'; mainTitle.dataset.text = '电子包浆生成器'; }
+
             downloadStickerBtn.classList.add('disabled');
             document.querySelector('.app-container').classList.remove('workspace-active');
         }
@@ -408,7 +407,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const status = document.createElement('div');
         status.className = 'result-status';
-        status.textContent = '待处理';
+        status.textContent = 'Pending';
 
         const delBtn = document.createElement('button');
         delBtn.type = 'button';
@@ -439,12 +438,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const pool = getWorkerPool();
 
         if (pool.length === 0) {
-            // 无 Worker 时回退到主线程顺序处理
+            // Fallback: process on main thread when no workers available
             for (const item of fileQueue) {
                 const itemEl = document.getElementById(`item-${item.id}`);
                 const statusEl = itemEl.querySelector('.result-status');
                 itemEl.classList.add('processing');
-                statusEl.textContent = '处理中...';
+                statusEl.textContent = 'Processing...';
                 try {
                     const blob = await applyPatinaToImage(item.file, settings);
                     item.processedBlob = blob;
@@ -453,7 +452,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     itemEl.classList.add('done');
                 } catch (error) {
                     console.error(error);
-                    statusEl.textContent = '失败';
+                    statusEl.textContent = 'Failed';
                 }
             }
             setLoading(false);
@@ -463,7 +462,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // 并发：先并行读取所有文件为 ArrayBuffer
+        // Read all files as ArrayBuffers in parallel
         const buffers = await Promise.all(fileQueue.map(item => readFileAsArrayBuffer(item.file)));
         const pendingTasks = fileQueue.map((item, i) => ({
             id: item.id,
@@ -497,7 +496,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (error) {
                 console.error('Worker 处理失败:', error);
-                if (statusEl) statusEl.textContent = '失败';
+                if (statusEl) statusEl.textContent = 'Failed';
                 itemEl?.classList.remove('processing');
             } else {
                 item.processedBlob = blob;
@@ -511,13 +510,13 @@ document.addEventListener('DOMContentLoaded', () => {
             assignNext(worker);
         }
 
-        // 为每张图片标记「处理中」，并给每个 Worker 分配首个任务
+        // Mark all items as processing and dispatch to workers
         fileQueue.forEach(item => {
             const itemEl = document.getElementById(`item-${item.id}`);
             if (itemEl) {
                 itemEl.classList.add('processing');
                 const statusEl = itemEl.querySelector('.result-status');
-                if (statusEl) statusEl.textContent = '处理中...';
+                if (statusEl) statusEl.textContent = 'Processing...';
             }
         });
 
@@ -618,11 +617,11 @@ document.addEventListener('DOMContentLoaded', () => {
         if (isLoading) {
             processBtn.classList.add('disabled');
             if (spinner) spinner.classList.remove('hidden');
-            if (btnText) btnText.textContent = '正在处理...';
+            if (btnText) btnText.textContent = 'Processing...';
         } else {
             processBtn.classList.remove('disabled');
             if (spinner) spinner.classList.add('hidden');
-            if (btnText) btnText.textContent = '注入包浆';
+            if (btnText) btnText.textContent = 'Apply Patina';
         }
     }
 });
